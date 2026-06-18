@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import "dotenv/config";
+import bcrypt from "bcrypt";
 
 import dns from "dns"
 dns.setServers(['8.8.8.8', '8.8.4.4']);
@@ -28,12 +29,16 @@ const userSchema = new mongoose.Schema({
     },
 
     email : {
+
         type : String,
         required : true,
-        trim : true
+        trim : true,
+        unique : true,
+        
     },
 
     firstName : {
+
         type : String,
         required : true,
         trim : true,
@@ -75,13 +80,10 @@ const accountSchema = new mongoose.Schema({
 
 })
 
-// import bcrypt from "bcrypt";
-
-// userSchema.pre("save", async function(next) {
-//     if (!this.isModified("password")) return next();
-//     this.password = await bcrypt.hash(this.password, 10);
-//     next();
-// });
+userSchema.pre("save", async function() {
+    if (!this.isModified("password")) return;
+    this.password = await bcrypt.hash(this.password, 10);
+});
 
 
 
