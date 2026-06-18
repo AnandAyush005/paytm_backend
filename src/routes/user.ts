@@ -3,8 +3,9 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 
-import { signInSchema, signUpSchema } from "../middleware/zod.ts";
+import { signInSchema, signUpSchema, updateSchema } from "../middleware/zod.ts";
 import { User } from "../db/db.ts";
+import authMiddleware from "../middleware/authMiddleware.ts";
 
 
 const userRouter = express.Router();
@@ -98,5 +99,34 @@ userRouter.post('/signin', async (req,res)=>{
 
 
 })
+
+userRouter.put('/update', authMiddleware, async (req, res) => {
+    const { success, data } = updateSchema.safeParse(req.body);
+
+    if (!success) {
+        return res.status(403).json({
+            message: "Invalid input"
+        });
+    }
+
+    //@ts-ignore
+    const findUser = await User.findById(req.userId);
+
+    if (!findUser) {
+        return res.status(404).json({
+            message: "No user found"
+        });
+    }
+
+    if (data.firstName) findUser.firstName = data.firstName;
+    if (data.lastName) findUser.lastName = data.lastName;
+    if (data.password) findUser.password = data.password;
+
+    await findUser.save();
+
+    res.status(200).json({
+        message: "User updated successfully"
+    });
+});
 
 export default userRouter;

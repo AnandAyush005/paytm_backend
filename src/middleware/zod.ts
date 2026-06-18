@@ -1,3 +1,4 @@
+import { password } from "bun";
 import z from "zod";
 
 const signUpSchema = z.object({
@@ -15,4 +16,11 @@ const signInSchema = z.object({
     password : z.string().min(6).trim()
 })
 
-export {signInSchema, signUpSchema}
+const updateSchema = z.object({
+    password : z.string().min(6).trim().optional(),
+    firstName : z.string().trim().max(30).min(3).optional(),
+    lastName : z.string().trim().max(30).min(3).optional(),
+
+})
+
+export {signInSchema, signUpSchema, updateSchema}

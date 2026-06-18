@@ -3,7 +3,7 @@ import "dotenv/config";
 
 async function authMiddleware(req:any, res:any, next:any) {
     try {
-        const authHeader = req.headers.authorization;
+        const authHeader = req.headers.token;
 
         const token = authHeader?.split(" ")[1];
 
