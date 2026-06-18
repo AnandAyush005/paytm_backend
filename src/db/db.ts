@@ -3,6 +3,7 @@ import "dotenv/config";
 import bcrypt from "bcrypt";
 
 import dns from "dns"
+import { _toUpperCase } from "zod/v4/core";
 dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 function connectDB(){
@@ -65,7 +66,8 @@ const accountSchema = new mongoose.Schema({
 
     userId : {
         type : mongoose.Schema.Types.ObjectId,
-        ref : "User"
+        ref : "User",
+        required : true
     },
 
     balance : {

@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import "dotenv/config";
 
 import { signInSchema, signUpSchema, updateSchema } from "../middleware/zod.ts";
-import { User } from "../db/db.ts";
+import { Account, User } from "../db/db.ts";
 import authMiddleware from "../middleware/authMiddleware.ts";
 
 
@@ -40,16 +40,24 @@ userRouter.post('/signup', async(req,res)=>{
        
     })
 
-    if(!createUser){
+    const createAccount = await Account.create({
+
+        userId : createUser._id,
+    })
+
+    if(!createUser || !createAccount){
         return res.status(411).json({
-            message : "Unable to create the user"
+            message : "Unable to create the user or account"
         })
     }
 
+    createUser.accountDetails = createAccount._id;
+    await createUser.save();
 
     res.status(200).json({
         message : "User is signed up",
-        id : createUser._id
+        id : createUser._id,
+        accountId : createAccount._id
     })
 
 })
@@ -84,7 +92,7 @@ userRouter.post('/signin', async (req,res)=>{
 
     const token : string = jwt.sign({
         id : findUser._id
-    }, `${process.env.JWT_SECRET}`);
+    }, process.env.JWT_SECRET as string);
 
     if(!token){
         return res.status(500).json({
@@ -100,7 +108,9 @@ userRouter.post('/signin', async (req,res)=>{
 
 })
 
-userRouter.put('/update', authMiddleware, async (req, res) => {
+userRouter.use(authMiddleware);
+
+userRouter.put('/update', async (req, res) => {
     const { success, data } = updateSchema.safeParse(req.body);
 
     if (!success) {
@@ -128,5 +138,51 @@ userRouter.put('/update', authMiddleware, async (req, res) => {
         message: "User updated successfully"
     });
 });
+
+userRouter.get('/bulk', async (req,res)=>{
+
+    const filter = req.query.filter as string || "";
+
+    const findAll = await User.find({
+        $or: [
+            {
+                username: {
+                    $regex: filter,
+                    $options: "i"
+                }
+            },
+            {
+                firstName: {
+                    $regex: filter,
+                    $options: "i"
+                }
+            },
+            {
+                lastName: {
+                    $regex: filter,
+                    $options: "i"
+                }
+            }
+        ]
+    });
+
+    if(findAll.length < 1){
+        return res.status(411).json({
+            message : "No user with this firstName or lastName is found"
+        })
+    }
+
+    res.status(200).json({
+        
+        users : findAll.map((user)=>({
+            username : user.username,
+            firstName : user.firstName,
+            lastName : user.lastName,
+            _id : user._id
+        })),
+    })
+
+
+})
 
 export default userRouter;
