@@ -23,4 +23,13 @@ const updateSchema = z.object({
 
 })
 
-export {signInSchema, signUpSchema, updateSchema}
+
+const transferSchema = z.object({
+    username : z.string().min(3).max(30).trim(),
+    amount : z.number().gte(1)
+})
+
+export {signInSchema,
+     signUpSchema, 
+     updateSchema,
+    transferSchema}

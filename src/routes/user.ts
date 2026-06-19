@@ -185,4 +185,6 @@ userRouter.get('/bulk', async (req,res)=>{
 
 })
 
+
+
 export default userRouter;
