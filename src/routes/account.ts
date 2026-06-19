@@ -1,14 +1,12 @@
 import express, { type Request, type Response } from "express"
 import mongoose from "mongoose";
-import authMiddleware from "../middleware/authMiddleware.js";
+import authMiddleware , { type AuthRequest } from "../middleware/authMiddleware.js";
 import { Account, User } from "../db/db.js";
 import { transferSchema } from "../middleware/zod.js";
 const accountRouter = express.Router();
 
 // extend Request to include userId set by authMiddleware
-interface AuthRequest extends Request {
-    userId?: string
-}
+
 
 accountRouter.use(authMiddleware);
 

@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import "dotenv/config";
+import type { Request } from "express";
 
 async function authMiddleware(req:any, res:any, next:any) {
     try {
@@ -28,5 +29,9 @@ async function authMiddleware(req:any, res:any, next:any) {
         });
     }
 }
+
+export type AuthRequest = Request & {
+    userId?: string;
+};
 
 export default authMiddleware;

@@ -1,16 +1,16 @@
-import express from "express";
+import express, {type Response} from "express";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 
 import { signInSchema, signUpSchema, updateSchema } from "../middleware/zod.ts";
 import { Account, User } from "../db/db.ts";
-import authMiddleware from "../middleware/authMiddleware.ts";
+import authMiddleware , {type AuthRequest} from "../middleware/authMiddleware.ts";
 
 
 const userRouter = express.Router();
 
-userRouter.post('/signup', async(req,res)=>{
+userRouter.post('/signup', async(req : AuthRequest,res : Response)=>{
 
     const {success, data} = signUpSchema.safeParse(req.body);
 
@@ -62,7 +62,7 @@ userRouter.post('/signup', async(req,res)=>{
 
 })
 
-userRouter.post('/signin', async (req,res)=>{
+userRouter.post('/signin', async (req : AuthRequest,res : Response)=>{
 
     const {success, data} = signInSchema.safeParse(req.body);
 
@@ -110,7 +110,7 @@ userRouter.post('/signin', async (req,res)=>{
 
 userRouter.use(authMiddleware);
 
-userRouter.put('/update', async (req, res) => {
+userRouter.put('/update', async (req : AuthRequest, res : Response) => {
     const { success, data } = updateSchema.safeParse(req.body);
 
     if (!success) {
@@ -119,7 +119,6 @@ userRouter.put('/update', async (req, res) => {
         });
     }
 
-    //@ts-ignore
     const findUser = await User.findById(req.userId);
 
     if (!findUser) {
@@ -139,7 +138,7 @@ userRouter.put('/update', async (req, res) => {
     });
 });
 
-userRouter.get('/bulk', async (req,res)=>{
+userRouter.get('/bulk', async (req : AuthRequest,res : Response)=>{
 
     const filter = req.query.filter as string || "";
 
