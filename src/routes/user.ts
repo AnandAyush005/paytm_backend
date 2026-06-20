@@ -188,7 +188,7 @@ userRouter.get('/user-details', async(req : AuthRequest, res : Response)=>{
 
     const id = req.userId;
 
-    const details = await User.find({_id : id}).populate('accountDetails');
+    const details = await User.findOne({_id : id}).populate('accountDetails', '-_id -userId -transactions');
 
     if(!details){
         return res.status(500).json({
@@ -196,9 +196,7 @@ userRouter.get('/user-details', async(req : AuthRequest, res : Response)=>{
         })
     }
 
-    res.status(200).json({
-        details
-    })
+    res.status(200).json(details)
 })
 
 

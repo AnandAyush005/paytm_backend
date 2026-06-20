@@ -119,12 +119,14 @@ accountRouter.post('/transfer', async (req: AuthRequest, res: Response) => {
         senderAccount.balance -= data.amount;
         receiverAccount.balance += data.amount;
 
+        const sender = await User.findById(senderId).session(session);
+
         senderAccount.transactions.push(
             `Transferred ₹${data.amount} to ${data.username}`
         );
 
         receiverAccount.transactions.push(
-            `Received ₹${data.amount} from ${senderId}`
+            `Received ₹${data.amount} from ${sender?.username || senderId}`
         );
 
         await senderAccount.save({ session });
