@@ -184,6 +184,22 @@ userRouter.get('/bulk', async (req : AuthRequest,res : Response)=>{
 
 })
 
+userRouter.get('/user-details', async(req : AuthRequest, res : Response)=>{
+
+    const id = req.userId;
+
+    const details = await User.find({_id : id}).populate('accountDetails');
+
+    if(!details){
+        return res.status(500).json({
+            message : "Unable to fetch the data"
+        })
+    }
+
+    res.status(200).json({
+        details
+    })
+})
 
 
 export default userRouter;
